@@ -90,7 +90,9 @@ At this point, you should have a working - albeit insecure! - Nextcloud. Power i
 
 ## Get it ready for Traefik
 
-We will eventually want Traefik to act as a reverse proxy on our server, both to allow for several websites to be served from the Pi, but also because it makes dealing with Let's Encrypt certificates spectacularly easy. Add the following lines to the `nextcloud` service definition to 
+We will eventually want Traefik to act as a reverse proxy on our server, both to allow for several websites to be served from the Pi, but also because it makes dealing with Let's Encrypt certificates spectacularly easy. Much of this was taken from https://chriswiegman.com/2020/01/running-nextcloud-with-docker-and-traefik-2/. 
+
+Add the following lines to the `nextcloud` service definition to 
 
 - tell Traefik to expose this service,
 - re-route dav requests,
