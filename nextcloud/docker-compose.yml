@@ -1,0 +1,100 @@
+# This is the docker-compose.yml for making a Nextcloud 18 installation backed by
+# a MariaDB database.
+#
+# To use it, 
+# - make a .mariadb.env file containing the MYSQL_ROOT_PASSWORD, and
+# - set the correct domain name in the traefik configuration (two places)
+
+
+version: "3"
+
+# Use the pre-existing network named "internal-network" as the default network
+# You should have created this network before using
+#     docker network create internal-network
+networks:
+    default:
+        external:
+           name: internal-network
+
+services:
+
+    # Database backend for the owncloud 
+    db:
+        # Use webhippie's image because the official
+        # mariadb image doesn't support armhf
+        # This is a widely used image and can therefore
+        # probably be considered safe.
+        image: webhippie/mariadb
+        container_name: mariadb
+        # Also make the db available under the name "mysql"
+        # for compatibility with previous installations,
+        # which actually used a mysql database
+        networks:            
+            default:
+                aliases:
+                    - mysql
+
+        # Read MYSQL_ROOT_PASSWORD from this file
+        env_file: /srv/nextcloud/.mariadb.env
+
+        restart: always
+        volumes:
+            - /var/vol/mariadb:/var/lib/mysql
+
+        labels:
+            # Disable exposure of this container
+            # Should be the default in our traefik
+            # configuration anyway, but doesn't hurt
+            # to explicitly state so again here
+            - "traefik.enable=false"
+
+    # Actual nextcloud installation
+    nextcloud:
+        # Version pinned because upgrades can only go
+        # from major version to major version. So if we
+        # used :latest here, it might skip major versions
+        # if upgrades have not been run for a while, 
+        # making the upgrade process break.
+        image: nextcloud:18
+        container_name: nextcloud
+
+        restart: always
+        depends_on:
+            - db
+
+        # Do not expose any ports if going through traefik
+        # Uncomment this if you want the nextcloud container
+        # being served directly
+        #ports:
+        #    - 80:80
+        #    - 443:443
+
+        volumes:
+            - /var/vol/owncloud/config:/var/www/html/config
+            - /var/vol/owncloud/data:/var/www/html/data
+            - /var/vol/owncloud/custom_apps:/var/www/html/custom_apps
+
+        labels:
+            # Tell traefik to make this service available
+            - "traefik.enable=true"
+            # Define middleware to redirect requests to the 
+            # .well-known/carddav and /.well-known/caldav
+            # to /remote.php/dav/
+            - "traefik.http.middlewares.nextcloud-caldav.redirectregex.permanent=true"
+            - "traefik.http.middlewares.nextcloud-caldav.redirectregex.regex=^https://(.*)/.well-known/(card|cal)dav"
+            - "traefik.http.middlewares.nextcloud-caldav.redirectregex.replacement=https://$${1}/remote.php/dav/"
+            # Define a middleware to redirect http requests
+            # to https
+            - "traefik.http.middlewares.nextcloud-https.redirectscheme.scheme=https"
+            # Route http requests to dinosaurs.privatedns.org to this container
+            - "traefik.http.routers.nextcloud-http.entrypoints=web"
+            - "traefik.http.routers.nextcloud-http.rule=Host(`my.domain`)"
+            # Assign the https redirection middleware to this router
+            - "traefik.http.routers.nextcloud-http.middlewares=nextcloud-https@docker"
+            # Also route https requests to dinosaurs.privatedns.org to this container
+            - "traefik.http.routers.nextcloud.entrypoints=web-secure"
+            - "traefik.http.routers.nextcloud.rule=Host(`my.domain`)"
+            # Assign the dav redirection middleware to this router
+            - "traefik.http.routers.nextcloud.middlewares=nextcloud-caldav@docker"
+            - "traefik.http.routers.nextcloud.tls=true"
+            - "traefik.http.routers.nextcloud.tls.certresolver=default"
