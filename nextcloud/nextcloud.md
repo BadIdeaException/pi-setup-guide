@@ -125,6 +125,8 @@ Just to be on the safe side, also add this to the `db` part of the file:
 ```
 Strictly speaking, this should not be necessary, as we will configure Traefik to not expose containers by default. But it never hurts to explicitly set it here, as well.
 
+That's it. You're now ready to move on to configure [reverse proxying with Traefik](../traefik/traefik.md).
+
 ## How to upgrade
 
 For MariaDB, all you should need to do is pull a newer image. For Nextcloud, things are a little more complicated, because Nextcloud only allows going from one major version to the next (i.e. from 18 to 19, from 19 to 20, etc., but not from 18 diretly to 20). That's also why we pinned an image version earlier - if we had just used the default `latest`, it might lead to exactly this in the future.
