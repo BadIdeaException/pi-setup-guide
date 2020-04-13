@@ -1,0 +1,26 @@
+[log]
+  level = "INFO"
+
+[providers.docker]
+  # Do not expose containers by default
+  exposedByDefault = false
+  endpoint = "unix:///var/run/docker.sock"
+
+[entryPoints]
+  [entryPoints.web]
+    address = ":80"
+  [entryPoints.web-secure]
+    address = ":443"
+
+[certificatesResolvers]
+  [certificatesResolvers.default.acme]
+    # Replace this with your actual email so Let's Encrypt has a way of
+    # getting in touch with you about your certificates.
+    email = "me@email.com"
+    storage = "acme.json"
+    # The LetsEncrypt issuing server has a limit and will shut you out
+    # if you generate too many requests in a short time.
+    # If you are experimenting, make sure to ruun against the staging server
+    # by uncommenting the following line:
+    #caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
+    [certificatesResolvers.default.acme.tlsChallenge]
