@@ -8,3 +8,5 @@ Fresh install only:
 - In cupsd.conf, you need to add `ServerAlias *` to allow access using hostname instead of IP. Otherwise you get an HTTP Bad Request response
 
 - After you first start the daemon, `exec` into the container and run `cupsctl --remote-admin --remote-any --share-printers` to enable admin over the web interface and share the printers
+
+- To access CUPS admin, access via HTTPS on non-standard port 631
