@@ -33,7 +33,7 @@ Again, you can check if it worked by doing `docker-compose version`.
 
 Now that the tools are in place, this is a good time to lay down some basic infrastructure for your containers. Make
 
-- a shared network for your containers and communicate with each other: `docker networt create internal-net`
+- a shared network for your containers and communicate with each other: `docker networt create internal-network`
 
 - a place for their volumes to live: `mkdir /var/vol`
 
