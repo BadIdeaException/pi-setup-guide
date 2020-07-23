@@ -41,6 +41,17 @@ deluser -remove-home pi
 _Side note: According the corresponding section of the [Raspbian configuration documentation](https://www.raspberrypi.org/documentation/configuration/security.md), "with the current Raspbian distribution, there are some aspects that require the pi user to be present. If you are unsure whether you will be affected by this, then leave the pi user in place. Work is being done to reduce the dependency on the pi user." 
 I have never had any problems without having a `pi` user, but if you run into problems, just change `pi`'s password and leave the user in place.)_
 
+## Auto-mount a data drive
+
+If you want the server's data to be saved on a separate drive, like an external hard drive, this is a good time to set this up for auto-mounting. Edit `/etc/fstab` and add the following line:
+
+```
+UUID=<uuid> /var/vol defaults,relatime 0 0
+```
+You can find out the UUID of the drive using the command `blkid`. Note that if the drive is partitioned, you need to use `PARTUUID` instead. The above line automounts the drive with the corresponding UUID to `/var/vol` regardless of device number in read-write mode and disables `fsck` on startup on it (that's the second 0).
+
+Be careful - a bad `fstab` can prevent the system from booting.
+
 ## Some more basic admin
 
 There are some minor bits and pieces left to be done. Fortunately, they can all be done conveniently by using the Raspbian admin tool `raspi-config`:
