@@ -1,3 +1,6 @@
+For network printers, running a CUPS server on the Pi is obviously unnecessary. This document is therefore deprecated.
+
+<i>
 Notes:
 
 Fresh install only:
@@ -12,3 +15,4 @@ Fresh install only:
 - To access CUPS admin, access via HTTPS on non-standard port 631
 
 - You need an admin user for the web interface. Unfortunately, the one easy way of managing this in the Dockerfile - by passing the password as a build argument (ARG) in order to set the password programatically at build time - is insecure (because it is visible when inspecting the image). Some support for secrets has been added recently, but it's still a bit clunky at this time, especially in conjunction with Docker Compose. So at this time, you'll have to `exec` into the container by hand and run `passwd cups`.
+</i>
